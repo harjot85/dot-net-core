@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using dotnetcore.Models;
-using System.Collections.Generic;
-using System.Linq;
+using dotnetcore.services.CharacterService;
+using System.Threading.Tasks;
 
 namespace dotnetcore.Controllers
 {
@@ -10,37 +10,33 @@ namespace dotnetcore.Controllers
     [Route("[Controller]")]
     public class CharacterController : ControllerBase
     {
-        private static List<Character> characters = new List<Character>() 
+        private readonly ICharacterService _characterService;
+        public CharacterController(ICharacterService characterService)
         {
-            new Character(),
-            new Character() { Name = "Hulk", Id = 100, Class = RpgClass.Athletics },
-            new Character() { Name = "Strange", Id = 105, Class = RpgClass.Magic },
-            new Character() { Name = "Wolverine", Id = 110, Class = RpgClass.Mutation }
-        };
-
-        [HttpGet("{id}")]
-        public IActionResult GetCharacterById(int id)
-        {
-            return Ok(characters.FirstOrDefault(c => c.Id == id));
+            _characterService = characterService;
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCharacterById(int id)
+        {
+            var result = await _characterService.GetCharacterById(id);
+            return Ok(result);
+        }
 
         [Route("")]
-        public IActionResult GetCharacters() 
+        public async Task<IActionResult> GetCharacters()
         {
-            return Ok(characters);
+            var result = await _characterService.GetCharacters();
+            return Ok(result);
         }
 
         [HttpPost]
-        public IActionResult PostCharacter(Character character)
+        public async Task<IActionResult> PostCharacter(Character character)
         {
             if (string.IsNullOrEmpty(character.Name) || character.Id < 1) return BadRequest("Id cannot be zero or negative number. Name is required.");
-            if (characters.Any(c => c.Id == character.Id)) return BadRequest("Character with this Id already exists.");
-            if (characters.Any(c => c.Name == character.Name)) return BadRequest("Character with this Name already exists.");
 
-            characters.Add(character);
-            
-            return Ok($"Character {character.Name} added.");
+            var result = await _characterService.PostCharacter(character);
+            return Ok($"Character added. Updated List: {result}");
         }
     }
 }

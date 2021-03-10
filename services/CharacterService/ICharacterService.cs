@@ -6,8 +6,8 @@ namespace dotnetcore.services.CharacterService
 {
     public interface ICharacterService
     {
-          Task<List<Character>> GetCharacters();
-          Task<Character> GetCharacterById(int id);
-          Task<List<Character>> PostCharacter(Character character);
+          Task<ServiceResponse<List<Character>>> GetCharacters();
+          Task<ServiceResponse<Character>> GetCharacterById(int id);
+          Task<ServiceResponse<List<Character>>> PostCharacter(Character character);
     }
 }

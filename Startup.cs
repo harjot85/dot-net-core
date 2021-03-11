@@ -29,6 +29,7 @@ namespace dotnetcore
         {
 
             services.AddControllers();
+            services.AddAutoMapper(typeof(Startup));
             services.AddScoped<ICharacterService, CharacterService>();
             services.AddSwaggerGen(c =>
             {

@@ -1,13 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using dotnetcore.DTOs.Character;
 using dotnetcore.Models;
 
 namespace dotnetcore.services.CharacterService
 {
-
     public class CharacterService : ICharacterService
     {
+        private readonly IMapper _mapper;
+        public CharacterService(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
         private static List<Character> characters = new List<Character>()
         {
             new Character(),
@@ -15,25 +21,27 @@ namespace dotnetcore.services.CharacterService
             new Character() { Name = "Strange", Id = 105, Class = RpgClass.Magic },
             new Character() { Name = "Wolverine", Id = 110, Class = RpgClass.Mutation }
         };
-        public async Task<ServiceResponse<Character>> GetCharacterById(int id)
+        public async Task<ServiceResponse<GetCharacterDto>> GetCharacterById(int id)
         {
-            ServiceResponse<Character> serviceResponse = new ServiceResponse<Character>();
-            serviceResponse.Data = characters.FirstOrDefault(c => c.Id == id);
+            ServiceResponse<GetCharacterDto> serviceResponse = new ServiceResponse<GetCharacterDto>();
+            serviceResponse.Data = _mapper.Map<GetCharacterDto>(characters.FirstOrDefault(c => c.Id == id));
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<Character>>> GetCharacters()
+        public async Task<ServiceResponse<List<GetCharacterDto>>> GetCharacters()
         {
-            ServiceResponse<List<Character>> serviceResponse = new ServiceResponse<List<Character>>();
-            serviceResponse.Data = characters;
+            ServiceResponse<List<GetCharacterDto>> serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
+            serviceResponse.Data = _mapper.Map<List<GetCharacterDto>>(characters);
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<Character>>> PostCharacter(Character character)
+        public async Task<ServiceResponse<List<GetCharacterDto>>> PostCharacter(AddCharacterDto newCharacter)
         {
-            ServiceResponse<List<Character>> serviceResponse = new ServiceResponse<List<Character>>();
+            ServiceResponse<List<GetCharacterDto>> serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
+            Character character = _mapper.Map<Character>(newCharacter);
+            character.Id = characters.Max(c => c.Id) + 1;
             characters.Add(character);
-            serviceResponse.Data = characters;
+            serviceResponse.Data = characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
             return serviceResponse;
         }
     }

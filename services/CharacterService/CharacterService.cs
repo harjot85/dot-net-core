@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -42,6 +43,41 @@ namespace dotnetcore.services.CharacterService
             character.Id = characters.Max(c => c.Id) + 1;
             characters.Add(character);
             serviceResponse.Data = characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<GetCharacterDto>> UpdateCharacter(UpdateCharacterDto updateCharacter)
+        {
+            ServiceResponse<GetCharacterDto> serviceResponse = new ServiceResponse<GetCharacterDto>();
+            try
+            {
+                Character character = characters.FirstOrDefault(c => c.Id == updateCharacter.Id);
+                character.Name = updateCharacter.Name;
+                character.Class = updateCharacter.Class;
+                character.Strength = updateCharacter.Strength;
+                character.HitPoints = updateCharacter.HitPoints;
+                character.Intelligence = updateCharacter.Intelligence;
+                character.Defense = updateCharacter.Defense;
+
+                serviceResponse.Data = _mapper.Map<GetCharacterDto>(character);
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.IsSuccess = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<GetCharacterDto>> DeleteCharacter(int id)
+        {
+            Character character = characters.FirstOrDefault(c => c.Id == id);
+            characters.Remove(character);
+
+            ServiceResponse<GetCharacterDto> serviceResponse = new ServiceResponse<GetCharacterDto>();
+            serviceResponse.Data = _mapper.Map<GetCharacterDto>(character);
+
             return serviceResponse;
         }
     }

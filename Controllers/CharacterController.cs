@@ -54,7 +54,7 @@ namespace dotnetcore.Controllers
             return Ok(response);
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCharacter(int id)
         {
             ServiceResponse<GetCharacterDto> response = await _characterService.DeleteCharacter(id);

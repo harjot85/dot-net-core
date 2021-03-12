@@ -72,7 +72,7 @@ namespace dotnetcore.services.CharacterService
 
         public async Task<ServiceResponse<GetCharacterDto>> DeleteCharacter(int id)
         {
-            Character character = characters.FirstOrDefault(c => c.Id == id);
+            Character character = characters.First(c => c.Id == id);
             characters.Remove(character);
 
             ServiceResponse<GetCharacterDto> serviceResponse = new ServiceResponse<GetCharacterDto>();

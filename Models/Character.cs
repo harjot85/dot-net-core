@@ -9,5 +9,6 @@ namespace dotnetcore.Models
         public int Defense { get; set; }
         public int Intelligence { get; set; }
         public RpgClass Class {get; set;} = RpgClass.Technology;
+        public User User { get; set; }
     }
 }

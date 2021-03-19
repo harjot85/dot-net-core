@@ -16,9 +16,29 @@ namespace dotnetcore.Data
         {
             _context = context;
         }
-        public Task<ServiceResponse<string>> Login(string username, string password)
+        public async Task<ServiceResponse<string>> Login(string username, string password)
         {
-            throw new NotImplementedException();
+            ServiceResponse<string> response = new ServiceResponse<string>();
+
+            User user = await _context.Users.FirstOrDefaultAsync(x => x.Username.ToLower() == username.ToLower());
+
+            if (user == null)
+            {
+                response.IsSuccess = false;
+                response.Message = "User not found";
+                return response;
+            }
+            if (VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            {
+                response.Message = "Login succesful";
+                response.Data = user.Id.ToString();
+            }
+            else 
+            {
+                response.IsSuccess = false;
+                response.Message = "Login failed";
+            }
+            return response;
         }
 
         public async Task<ServiceResponse<int>> Register(User user, string password)
@@ -63,5 +83,21 @@ namespace dotnetcore.Data
                 passwordHash = hash.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
             }
         }
+
+        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        {
+            using (var hash = new HMACSHA512(passwordSalt))
+            {
+                var computedHash = hash.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+
+                for (int i = 0; i < computedHash.Length; i++)
+                {
+                    if (computedHash[i] != passwordHash[i]) return false;
+                }
+            }
+
+            return true;
+        }
+
     }
 }

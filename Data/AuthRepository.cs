@@ -5,16 +5,23 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace dotnetcore.Data
 {
     public class AuthRepository : IAuthRepository
     {
         private readonly DataContext _context;
+        private readonly IConfiguration _configuration;
 
-        public AuthRepository(DataContext context)
+        public AuthRepository(DataContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
         public async Task<ServiceResponse<string>> Login(string username, string password)
         {
@@ -30,8 +37,11 @@ namespace dotnetcore.Data
             }
             if (VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
             {
+
+                string token = CreateToken(user);
+
                 response.Message = "Login succesful";
-                response.Data = user.Id.ToString();
+                response.Data = token;
             }
             else 
             {
@@ -97,6 +107,33 @@ namespace dotnetcore.Data
             }
 
             return true;
+        }
+
+        private string CreateToken(User user)
+        {
+
+            List<Claim> claims = new()
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username)
+            };
+
+            SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+
+            SigningCredentials credentials = new(key, SecurityAlgorithms.HmacSha512Signature);
+
+            SecurityTokenDescriptor tokenDescriptor = new()
+            {
+                SigningCredentials = credentials,
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Today.AddDays(1),
+                
+            };
+
+            JwtSecurityTokenHandler tokenHandler = new();
+            SecurityToken securityToken = tokenHandler.CreateToken(tokenDescriptor);
+
+            return tokenHandler.WriteToken(securityToken);
         }
 
     }

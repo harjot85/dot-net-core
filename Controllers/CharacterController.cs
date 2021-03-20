@@ -3,10 +3,12 @@ using dotnetcore.Models;
 using dotnetcore.services.CharacterService;
 using System.Threading.Tasks;
 using dotnetcore.DTOs.Character;
+using Microsoft.AspNetCore.Authorization;
 
 namespace dotnetcore.Controllers
 {
 
+    [Authorize]
     [ApiController]
     [Route("[Controller]")]
     public class CharacterController : ControllerBase
@@ -24,6 +26,7 @@ namespace dotnetcore.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
         [Route("")]
         public async Task<IActionResult> GetCharacters()
         {

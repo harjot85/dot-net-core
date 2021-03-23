@@ -6,6 +6,7 @@ using dotnetcore.DTOs.Character;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 using System.Security.Claims;
+using System.Collections.Generic;
 
 namespace dotnetcore.Controllers
 {
@@ -32,9 +33,7 @@ namespace dotnetcore.Controllers
         [Route("")]
         public async Task<IActionResult> GetCharacters()
         {
-            int id = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value);
-
-            var result = await _characterService.GetCharacters(id);
+            var result = await _characterService.GetAllCharacters();
             return Ok(result);
         }
 
@@ -43,7 +42,7 @@ namespace dotnetcore.Controllers
         {
             if (string.IsNullOrEmpty(character.Name)) return BadRequest("Id cannot be zero or negative number. Name is required.");
 
-            var result = await _characterService.PostCharacter(character);
+            var result = await _characterService.AddCharacter(character);
             return Ok($"Character added. Updated List: {result}");
         }
 
@@ -64,12 +63,8 @@ namespace dotnetcore.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCharacter(int id)
         {
-            ServiceResponse<GetCharacterDto> response = await _characterService.DeleteCharacter(id);
-            if (response.Data == null)
-            {
-                return NotFound();
-            }
-
+            ServiceResponse<List<GetCharacterDto>> response = await _characterService.DeleteCharacter(id);
+           
             return Ok(response);
         }
     }

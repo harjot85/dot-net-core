@@ -118,7 +118,7 @@ namespace dotnetcore.Data
                 new Claim(ClaimTypes.Name, user.Username)
             };
 
-            SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+            SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:token").Value));
 
             SigningCredentials credentials = new(key, SecurityAlgorithms.HmacSha512Signature);
 
@@ -126,7 +126,7 @@ namespace dotnetcore.Data
             {
                 SigningCredentials = credentials,
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Today.AddDays(1),
+                Expires = DateTime.Now.AddDays(1),
                 
             };
 

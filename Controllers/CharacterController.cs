@@ -4,6 +4,8 @@ using dotnetcore.services.CharacterService;
 using System.Threading.Tasks;
 using dotnetcore.DTOs.Character;
 using Microsoft.AspNetCore.Authorization;
+using System.Linq;
+using System.Security.Claims;
 
 namespace dotnetcore.Controllers
 {
@@ -21,7 +23,7 @@ namespace dotnetcore.Controllers
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCharacterById(int id)
-        {
+        { 
             var result = await _characterService.GetCharacterById(id);
             return Ok(result);
         }
@@ -30,7 +32,9 @@ namespace dotnetcore.Controllers
         [Route("")]
         public async Task<IActionResult> GetCharacters()
         {
-            var result = await _characterService.GetCharacters();
+            int id = int.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value);
+
+            var result = await _characterService.GetCharacters(id);
             return Ok(result);
         }
 

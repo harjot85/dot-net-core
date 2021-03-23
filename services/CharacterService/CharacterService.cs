@@ -29,10 +29,10 @@ namespace dotnetcore.services.CharacterService
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<GetCharacterDto>>> GetCharacters()
+        public async Task<ServiceResponse<List<GetCharacterDto>>> GetCharacters(int userId)
         {
             ServiceResponse<List<GetCharacterDto>> serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
-            List<Character> characters = await _context.Characters.ToListAsync();
+            List<Character> characters = await _context.Characters.Where(c => c.User.Id == userId).ToListAsync();
             serviceResponse.Data = _mapper.Map<List<GetCharacterDto>>(characters);
             return serviceResponse;
         }
